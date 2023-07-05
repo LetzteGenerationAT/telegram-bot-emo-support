@@ -1,0 +1,15 @@
+version: '3.4'
+
+services:
+  telegram-bot-emo-support:
+    image: telegram-bot-emo-support
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      - TELEGRAM_API_TOKEN
+      - EMO_SUPPORT_GROUP_ID
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+
