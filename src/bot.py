@@ -10,6 +10,7 @@ from telegram.ext import filters, MessageHandler, CommandHandler, ApplicationBui
 
 DATE_FORMAT  = "%m/%d/%Y %H:%M:%S"
 RESPONSE_MESSAGE_FILE = "response-message.txt"
+CASE_NUMBER_FILE = "case-number.txt"
 
 
 logging.basicConfig(
@@ -17,9 +18,31 @@ logging.basicConfig(
     level=logging.INFO
 )
 
+def _read_case_number() -> int:
+    try:
+        with open(CASE_NUMBER_FILE, "r", encoding="utf-8") as file:
+            number =  file.read()
+            return int(number)
+    except FileNotFoundError :
+        return 0
+
+
+def _set_case_number(case_number: int) -> None:
+    with open(CASE_NUMBER_FILE, "w", encoding="utf-8") as file:
+        return file.write(str(case_number))
+    
+
+def _next_case_number() -> int:
+    number = _read_case_number() + 1
+    _set_case_number(number)
+    return number
+
 def _read_response_message() -> str:
-    with open(RESPONSE_MESSAGE_FILE, "r", encoding="utf-8") as file:
-        return file.read()
+    try:
+        with open(RESPONSE_MESSAGE_FILE, "r", encoding="utf-8") as file:
+            return file.read()
+    except FileNotFoundError :
+        return "Thank you for reaching out!"
 
 def _set_response_message(response_message) -> None:
     with open(RESPONSE_MESSAGE_FILE, "w", encoding="utf-8") as file:
@@ -28,22 +51,21 @@ def _set_response_message(response_message) -> None:
 async def private_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """A private message is received. Send a message to the group."""
 
+    number = _next_case_number()
+
     local_zone = tz.tzlocal()
     dt_local = update.effective_message.date.astimezone(local_zone)
     dt_format = dt_local.strftime(DATE_FORMAT)
 
     await context.bot.send_message(
         chat_id=os.environ["EMO_SUPPORT_GROUP_ID"],
-        text=f"""Message metadata
-
+        text=f"""
 Firstname: *{update.effective_user.first_name}*
 Lastname: *{update.effective_user.last_name}*
 Username: [{update.effective_user.username}](https://t.me/{update.effective_user.username})
 Date: {dt_format}
-        
-
-
-Original Message        
+Casenumber: {number}
+               
 
 {update.effective_message.text}""",
         parse_mode="markdown",
