@@ -30,3 +30,19 @@ You get your Telegram API Token from BotFather.
 API token for Telegram obtained by BotFather.
 ### EMO_SUPPORT_GROUP_ID
 Id of the Telgram group receiving the bot's messages.
+
+## Dokcer
+
+Build
+```console
+docker build . -t lastgenat/telegram-bot-emo-support:tag
+```
+
+Build and compose 
+```console
+docker compose up --build telegram-bot-emo-support
+```
+Push to Hub
+```console
+docker push lastgenat/telegram-bot-emo-support:tag
+```
