@@ -37,16 +37,27 @@ async def private_message(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     dt_local = update.effective_message.date.astimezone(local_zone)
     dt_format = dt_local.strftime(DATE_FORMAT)
 
-    await context.bot.send_message(
-        chat_id=os.environ["EMO_SUPPORT_GROUP_ID"],
-        text=_create_group_message(update, dt_format, number),
-        parse_mode="markdown",
-    )
 
-    await context.bot.send_message(
-        chat_id=update.effective_message.chat_id,
-        text=config.get_response_message()
-    )
+    if update.effective_user.username is None:
+        await context.bot.send_message(
+            chat_id=update.effective_message.chat_id,
+            text="""Please provide a *username* so that we can contact you. \n
+[Settings](tg://settings) \n
+[How to add a username in telegram](https://www.swipetips.com/how-to-add-a-username-in-telegram/) \n
+[FAQ - Telegram username](https://telegram.org/faq#usernames-and-t-me) \n""",
+            parse_mode="markdown",
+            disable_web_page_preview=True
+        )
+    else:
+        await context.bot.send_message(
+            chat_id=os.environ["EMO_SUPPORT_GROUP_ID"],
+            text=_create_group_message(update, dt_format, number),
+            parse_mode="markdown",
+        )
+        await context.bot.send_message(
+            chat_id=update.effective_message.chat_id,
+            text=config.get_response_message()
+        )
 
 async def get_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """
